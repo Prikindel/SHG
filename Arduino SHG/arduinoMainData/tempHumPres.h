@@ -19,7 +19,7 @@ void getTempHumPresBME() {
   valueBME[0] = temp;
   valueBME[1] = (float)humidity;
   valueBME[2] = pressure * 0.00750063755419211;       // 1 паскаль [Па] = 0,00750063755419211 миллиметр ртутного столба (0°C) [мм рт.ст.]
-  //get and print temperatures
+  /*//get and print temperatures
   Serial.print("Temp: "); 
   Serial.print(temp); 
   Serial.println( " C"); //The unit for Celsius because original arduino don't support speical symbols
@@ -40,7 +40,7 @@ void getTempHumPresBME() {
   //get and print humidity data
   Serial.print("Humidity: "); 
   Serial.print(humidity);
-  Serial.println( " % " );
+  Serial.println( " % " );*/
 }
 
 float getTempBME() {   

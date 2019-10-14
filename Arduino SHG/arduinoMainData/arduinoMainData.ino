@@ -3,7 +3,7 @@
 #include "servoDoor.h"
 //#include "tempHum.h"
 #include "tempHumPres.h"
-#include "motionSensorLed.h"
+//#include "motionSensorLed.h"
 #include "co2.h"
 #include "fan.h"
 #include "water.h"
@@ -30,16 +30,14 @@
 #define PINLIGHTROOMUP      6         // Пин для работы света в помещении на втором этаже
 #define PINCO2              7         // Пин для получения данных CO2
 
-int countLedsOfLightInTheRoomDown = 64;// Колличество светодиодов на панели в помещении на первом этаже
-int countLedsOfLightInTheRoomUp = 64; // Колличество светодиодов на панели в помещении на втором этаже
+int countLedsOfLightInTheRoomDown = 12;// Колличество светодиодов на панели в помещении на первом этаже
+int countLedsOfLightInTheRoomUp = 12; // Колличество светодиодов на панели в помещении на втором этаже
 int codeGet = 0;                      // Код запроса
 int argument[5] = {};                    // Получаемый аргумент
 uint32_t timerLed;                    // Timer
 uint32_t timerSensors;                // Timer get data sensors
 char outChar[20] = {};                // Возвращаемый параметр
 int rgbb[4] = {0, 0, 0, 0};           // RGB and brightness
-
-Servo servoDoor;
 
 /*
  *  Read and return temperature readings
@@ -115,23 +113,23 @@ String withCode(int code) {
   String out = "";
   switch (code) {
     case TEMPERATURA: {
-      out = (String)getTemperatureThis();
+      out = (String)(int)getTemperatureThis();
       break;
     }
     case HUMIDITY: {
-      out = (String)getHumidityThis();
+      out = (String)(int)getHumidityThis();
       break;
     }
     case PRESSURE: {
-      out = (String)getPressureThis();
+      out = (String)(int)getPressureThis();
       break;
     }
     case CO2: {
-      out = (String)getCO2This();
+      out = (String)(int)getCO2This();
       break;
     }
     case WATER: {
-      out = (String)getWaterThis();
+      out = (String)(int)getWaterThis();
       break;
     }
     case LEDRING: {
@@ -198,9 +196,9 @@ void setup() {
   delay(1000);                                // переход в активное состояние
 
   // инициализация всех пинов
-  setMotionSensor(PINMOTIONSENSOR,            // installing the Motion Sensor and Led
-                  PINPORCHLED, 
-                  10000);    
+//  setMotionSensor(PINMOTIONSENSOR,            // installing the Motion Sensor and Led
+//                  PINPORCHLED, 
+//                  10000);    
   setupFan(PINFAN);                           // installing the fan
   setupWater(PINWATER);                       // installing the water sensor
   setupCO2(PINCO2);                           // installing the CO2 sensor
@@ -221,11 +219,10 @@ void setup() {
 }
 
 void loop() {
-  loopMotionSensor();
+//  loopMotionSensor();
   loopLedLightSensor();
   loopCO2();
   if (millis() - timerSensors >= 2000) {      // обновляем данные с датчиков каждые 2 секунды
-    Serial.println();
     timerSensors = millis();
     loopWater();
     getTempHumPresBME();
