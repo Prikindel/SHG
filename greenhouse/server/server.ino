@@ -1,15 +1,40 @@
 #include <HTTP_Method.h>
 #include <WebServer.h>
+#include <Wire.h>
 #include "WiFi.h"
 #include "mainPage.h"
+#include "pinoutForShield.h"
+#include "servoDoor.h"
+//#include "tempHum.h"
+#include "tempHumPres.h"
+#include "co2.h"
+#include "fan.h"
+#include "water.h"
+#include "lightInTheRoom.h"
+#include "pomp.h"
 
+#define TEMPERATURA         1           // Код температуры
+#define HUMIDITY            2           // Код влажности
+#define PRESSURE            3           // Код давления
+#define CO2                 4           // Код СО2
+#define WATER               5           // Код воды
+#define LEDRING             6           // Код диодного кольца
+#define DOOR                7           // Код управления дверью
+#define FAN                 8           // Код управления вентилятором
+#define PUMP                9           // Код управления помпой
 
-#define FAN                                           //
-#define LIGHT                                         //
-#define PUMP                                          //
+#define PINCONNECTION_LED   A0          // Код диода состояния подключения к сети
+#define PINWATER            A1          // Пин для получения данных воды
+#define PINFAN              D3          // Пин для работы вентилятора
+#define PINSERVO            D4          // Пин для сервомашинка (двери)
+#define PINLIGHTROOM        D5          // Пин для работы света в помещении
+#define PINCO2              D6          // Пин для получения данных CO2
+#define PINPUMP             D7          // Пин для помпы
 
-const char* ssid = "Redmi";                                //SSID WiFi
-const char* password = "uuubbb555";                            //Password WiFi
+int countLedsOfLightInTheRoom = 12;     // Колличество светодиодов на панели в помещении на первом этаже
+
+const char* ssid = "Crafto";            // SSID WiFi
+const char* password = "FktrcR888";     // Password WiFi
 
 const int countJSON = 5;                              //size JSON
 String outJSON[countJSON];                            //value JSON
@@ -20,10 +45,22 @@ String outIndexJSON[countJSON] = {                    //key JSON
                                   "co2",          //-CO2
                                   "water"         //-влажность почвы
                                   };
+                                  
+uint32_t timerSensors;                // Timer get data sensors
+uint32_t timerConnectLed;             // timer LED connection
+int connectLed  = 0;                  // value LED connection WiFi
+int light       = 0;                  // value brightness LED RING
+int red         = 0;                  // value red LED RING
+int green       = 0;                  // value green LED RING
+int blue        = 0;                  // value blue LED RING
+int doorInt     = 0;                  // value open door
+int fan         = 0;                  // value fan on
+int pump        = 0;                  // value pomp on
+int flagConnect = false;              // flag connection led
 
-IPAddress ip(192, 168, 43, 155);                      //IP server
-IPAddress gateway(192, 168, 1, 1);                    //sluice
-IPAddress subnet(255, 255, 255, 0);                   //mask
+IPAddress ip(192, 168, 1, 155);                      //IP server
+IPAddress gateway(192, 168, 1, 1);                   //sluice
+IPAddress subnet(255, 255, 255, 0);                  //mask
 
 
 WebServer server(80);
@@ -69,57 +106,132 @@ void handleRoot()
   server.send(200, "text/html", MAIN_page);
 }
 
-//
-//  Temperature data transmission
-//
-
-void temperatureTransmission() {
-  // Get temperature
-  getParameter(0, TEMPERATURA);
+/*
+ *  Read and return temperature readings
+ */
+float getTemperatureThis() {
+  float value = getTempBME();
+  return value;
 }
 
-//
-//  Humidity data transmission
-//
-
-void humidityTransmission() {
-  // Get humidity
-  getParameter(1, HUMIDITY);
+/*
+ *  Read and return humidity readings
+ */
+float getHumidityThis() {
+  float value = getHumBME();
+  return value;
 }
 
-//
-//  Pressure data transmission
-//
-
-void pressureTransmission() {
-  // Get pressure
-  getParameter(2, PRESSURE);
+/*
+ *  Read and return pressure readings
+ */
+float getPressureThis() {
+  float value = getPresBME();
+  return value;
 }
 
-//
-//  CO2
-//
-
-void co2Transmission() {
-  // Get CO2
-  getParameter(3, CO2);
+/*
+ *  Read and return CO2 readings
+ */
+float getCO2This() {
+  float value = getCO2();
+  return value;
 }
 
-//
-//  WATER
-//
+/*
+ *  Read and return the water level
+ */
+float getWaterThis() {
+  float value = getWater();
+  return value;
+}
 
-void waterTransmission() {
-  // Get lvl water
-  getParameter(4, WATER);
+/*
+ *  Control the light in the room
+ */
+String setLight(int red, int green, int blue, int br) {
+  setLightInTheRoom(red, green, blue, br);
+  return "true";
+}
+
+/*
+ *  Manage the opening of the door
+ */
+String setDoor(int value) {
+  loopServo(value);
+  return "true";
+}
+
+/*
+ *  Manage the ON/OFF of the fan
+ */
+String setFan(int value) {
+  loopFan(value);
+  return "true";
+}
+
+/*
+ *  Manage the ON/OFF of the pomp
+ */
+String setPump(int value) {
+  loopPump(value);
+  return "true";
 }
 
 //
 //  Receiving data depending on the code
 //
 
-void getParameter(int index, int code) {
-    outJSON[index] = getDataCode(code);
+void setParameter(int index, int value) {
+    outJSON[index] = (String)value;
+}
+
+/*
+ *  Depending on the code 
+ *  we perform certain actions 
+ *  and return the result
+ */
+void withCode(int code) {
+  switch (code) {
+    case TEMPERATURA: {
+      setParameter(0, (int)getTemperatureThis());
+      break;
+    }
+    case HUMIDITY: {
+      setParameter(1, (int)getHumidityThis());
+      break;
+    }
+    case PRESSURE: {
+      setParameter(2, (int)getPressureThis());
+      break;
+    }
+    case CO2: {
+      setParameter(3, (int)getCO2This());
+      break;
+    }
+    case WATER: {
+      setParameter(4, (int)getWaterThis());
+      break;
+    }
+    case LEDRING: {
+      setLight(red, green, blue, light);
+      break;
+    }
+    case DOOR: {
+      setDoor(doorInt);
+      break;
+    }
+    case FAN: {
+      setFan(fan);
+      break;
+    }
+    case PUMP: {
+      setPump(pump);
+      break;
+    }
+    default:
+      break;
+  }
 }
 
 //
@@ -129,11 +241,11 @@ void getParameter(int index, int code) {
 void outData() {
   Serial.println();
   Serial.println("Open getdata page");
-  temperatureTransmission();
-  humidityTransmission();
-  pressureTransmission();
-  co2Transmission();
-  waterTransmission();
+  withCode(TEMPERATURA);
+  withCode(HUMIDITY);
+  withCode(PRESSURE);
+  withCode(CO2);
+  withCode(WATER);
   
   String out = "{";
   for ( int i = 0; i < countJSON; i++ ) {
@@ -154,21 +266,16 @@ void outData() {
 
 void fanOnOff() {
   Serial.println();
-  Serial.println("Open open-door page");
+  Serial.println("Open fan page");
   if(server.args() != 0) {
     fan = server.arg("fan").toInt();
   }
   // Управляем вентилятором здесь
   Serial.print(fan == 0 ? "OFF" : "ON");
   Serial.println(" fan");
-  String feedback = getDataCode(FAN);
+  withCode(FAN);
   String out = "";
-  Serial.println(feedback);
-  if (feedback == "false" || feedback == "") {
-    out = "ERROR";
-  } else {
-    out = "fan = " + (String)fan;
-  }
+  out = "fan = " + (String)fan;
   server.send(200, "text/html", out);
 }
 
@@ -185,14 +292,9 @@ void openDoor() {
   // Управляем дверью здесь
   Serial.print(doorInt == 0 ? "CLOSE" : ("OPEN on " + (String)doorInt));
   Serial.println(" door");
-  String feedback = getDataCode(DOOR);
+  withCode(DOOR);
   String out = "";
-  Serial.println(feedback);
-  if (feedback == "false" || feedback == "") {
-    out = "ERROR";
-  } else {
-    out = "door = " + (String)doorInt;
-  }
+  out = "door = " + (String)doorInt;
   server.send(200, "text/html", out);
 }
 
@@ -212,14 +314,9 @@ void lightRoom() {
   // Управляем светом здесь
   Serial.print(light == 0 ? "OFF" : "ON");
   Serial.println(" light");
-  String feedback = getDataCode(LEDRING);
+  withCode(LEDRING);
   String out = "";
-  Serial.println(feedback);
-  if (feedback == "false" || feedback == "") {
-    out = "ERROR";
-  } else {
-    out = "light = " + (String)light + " RGB(" + red + ";" + green + ";" + blue + ")";
-  }
+  out = "light = " + (String)light + " RGB(" + red + ";" + green + ";" + blue + ")";
   server.send(200, "text/html", out);
 }
 
@@ -227,18 +324,20 @@ void lightRoom() {
 //  PUMP
 //
 
-void pump()
+void pumpOnOff()
 {
-  
-}
-
-//
-//  GET DATA
-//
-
-String getData()
-{
-  
+  Serial.println();
+  Serial.println("Open pump page");
+  if(server.args() != 0) {
+    pump = server.arg("pump").toInt();
+  }
+  // Управляем помпой здесь
+  Serial.print(pump == 0 ? "OFF" : "ON");
+  Serial.println(" pump");
+  withCode(PUMP);
+  String out = "";
+  out = "pump = " + (String)pump;
+  server.send(200, "text/html", out);
 }
 
 //
@@ -251,19 +350,83 @@ String equipmentStatus()
 }
 
 
-void setup() {
-  pinMode(5,OUTPUT);
-  digitalWrite(5, LOW);
-  
+void setup() {  
   Serial.begin(115200);
-  delay(1000);
+  delay(10);
+  
+  pinMode(PINCONNECTION_LED, OUTPUT);
+  digitalWrite(PINCONNECTION_LED, 0);
+  connectLed = 0;
+
+  Wire.begin();
   connectToWiFi(false);
-  server.on("/", handleRoot);
-  server.on("/on", light);
-  server.on("/off", light);
+  IPAddress localIp = WiFi.localIP();
+  ip[0] = localIp[0];
+  ip[1] = localIp[1];
+  ip[2] = localIp[2];
+  gateway[0] = localIp[0];
+  gateway[1] = localIp[1];
+  gateway[2] = localIp[2];
+
+  WiFi.disconnect();
+  Serial.println("Disconnect");
+  
+  connectToWiFi(true);
+  
+  server.on("/",            handleRoot);
+  server.on("/getdata",     outData);
+  server.on("/light-room",  lightRoom);
+  server.on("/open-door",   openDoor);
+  server.on("/fan",         fanOnOff);
+  server.on("/pump",        pumpOnOff);
+  
+  /* 
+   *
+   *  START SERVER
+   *    
+   */
+  
   server.begin();
+  Serial.println("Server started");
+ 
+  // Print the IP address
+  Serial.print("Use this URL : ");
+  Serial.print("http://");
+  Serial.print(WiFi.localIP());
+  Serial.println("/");
+
+  // инициализация всех пинов
+  setupFan(PINFAN);                           // installing the fan
+  setupWater(PINWATER);                       // installing the water sensor
+  setupCO2(PINCO2);                           // installing the CO2 sensor
+  setupServo(PINSERVO);                       // installing the servo
+  setupPump(PINPUMP);                         // installing the pump
+  setupLightInTheRoom(PINLIGHTROOM,           // installing the light in the room down
+                        countLedsOfLightInTheRoom); 
+
+  // загрузка данных
+  if(!checkBME()) { 
+    Serial.println("BME280 ERROR!");
+  }
+  loopWater();
+  getTempHumPresBME();
+  
+  flagConnect = true;
+  digitalWrite(PINCONNECTION_LED, 1);
+  connectLed = 1;
 }
 
 void loop() {
   server.handleClient();
+  loopCO2();
+  if (millis() - timerSensors >= 1000) {      // обновляем данные с датчиков каждую 1 секунду
+    timerSensors = millis();
+    loopWater();
+    getTempHumPresBME();
+  }
+  if (millis() - timerConnectLed >= 100 && !flagConnect) {            // Timer
+    timerConnectLed = millis();
+    connectLed = !connectLed;
+    digitalWrite(PINCONNECTION_LED, connectLed);    
+  }
 }
