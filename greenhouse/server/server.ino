@@ -24,7 +24,7 @@
 #define PUMP                9           // Код управления помпой
 
 #define PINCONNECTION_LED   A0          // Код диода состояния подключения к сети
-#define PINWATER            A1          // Пин для получения данных воды
+#define PINWATER            A3          // Пин для получения данных воды
 #define PINFAN              D3          // Пин для работы вентилятора
 #define PINSERVO            D4          // Пин для сервомашинка (двери)
 #define PINLIGHTROOM        D5          // Пин для работы света в помещении
@@ -45,6 +45,7 @@ String outIndexJSON[countJSON] = {                    //key JSON
                                   "co2",          //-CO2
                                   "water"         //-влажность почвы
                                   };
+
                                   
 uint32_t timerSensors;                // Timer get data sensors
 uint32_t timerConnectLed;             // timer LED connection
@@ -343,23 +344,52 @@ void pumpOnOff()
 //
 //  STATUS
 //
-
-String equipmentStatus()
+String outIndexJSONStatus[7] = {                    //key JSON
+                                  "fan",  
+                                  "door",     
+                                  "pump",     
+                                  "red",          
+                                  "green",  
+                                  "blue",     
+                                  "light"        
+                                  };
+void equipmentStatus()
 {
+  Serial.println();
+  Serial.println("Open status page");
   
+  String out = "{";
+  out += "\"" + outIndexJSONStatus[0] + "\":" /*+ "\""*/ + fan      /*+ "\""*/ + ",";
+  out += "\"" + outIndexJSONStatus[1] + "\":" /*+ "\""*/ + doorInt  /*+ "\""*/ + ",";
+  out += "\"" + outIndexJSONStatus[2] + "\":" /*+ "\""*/ + pump     /*+ "\""*/ + ",";
+  out += "\"" + outIndexJSONStatus[3] + "\":" /*+ "\""*/ + red      /*+ "\""*/ + ",";
+  out += "\"" + outIndexJSONStatus[4] + "\":" /*+ "\""*/ + green    /*+ "\""*/ + ",";
+  out += "\"" + outIndexJSONStatus[5] + "\":" /*+ "\""*/ + blue     /*+ "\""*/ + ",";
+  out += "\"" + outIndexJSONStatus[6] + "\":" /*+ "\""*/ + light    /*+ "\""*/;
+  out += "}";
+  Serial.println(out);
+  server.send(200, "text/html", out);
 }
 
+void connectLedOnOff(int value) {
+  digitalWrite(PINCONNECTION_LED, value);
+  connectLed = value;
+}
 
 void setup() {  
-  Serial.begin(115200);
-  delay(10);
-  
   pinMode(PINCONNECTION_LED, OUTPUT);
-  digitalWrite(PINCONNECTION_LED, 0);
-  connectLed = 0;
+  connectLedOnOff(1);
+  
+  Serial.begin(115200);
+  delay(100);
+
+  connectLedOnOff(0);
 
   Wire.begin();
   connectToWiFi(false);
+  
+  connectLedOnOff(1);
+  
   IPAddress localIp = WiFi.localIP();
   ip[0] = localIp[0];
   ip[1] = localIp[1];
@@ -373,7 +403,11 @@ void setup() {
   
   connectToWiFi(true);
   
+ 
+  connectLedOnOff(0);
+  
   server.on("/",            handleRoot);
+  server.on("/status",      equipmentStatus);
   server.on("/getdata",     outData);
   server.on("/light-room",  lightRoom);
   server.on("/open-door",   openDoor);
@@ -394,6 +428,9 @@ void setup() {
   Serial.print("http://");
   Serial.print(WiFi.localIP());
   Serial.println("/");
+  
+  
+  connectLedOnOff(1);
 
   // инициализация всех пинов
   setupFan(PINFAN);                           // installing the fan
@@ -404,16 +441,21 @@ void setup() {
   setupLightInTheRoom(PINLIGHTROOM,           // installing the light in the room down
                         countLedsOfLightInTheRoom); 
 
+                        
+  
+  connectLedOnOff(0);
+
   // загрузка данных
   if(!checkBME()) { 
     Serial.println("BME280 ERROR!");
   }
   loopWater();
   getTempHumPresBME();
+
+  
+  connectLedOnOff(1);
   
   flagConnect = true;
-  digitalWrite(PINCONNECTION_LED, 1);
-  connectLed = 1;
 }
 
 void loop() {
@@ -427,6 +469,6 @@ void loop() {
   if (millis() - timerConnectLed >= 100 && !flagConnect) {            // Timer
     timerConnectLed = millis();
     connectLed = !connectLed;
-    digitalWrite(PINCONNECTION_LED, connectLed);    
+    connectLedOnOff(connectLed);
   }
 }

@@ -2,24 +2,18 @@ package com.invaderprogrammer.android.shg.mvp.presenter
 
 import android.util.Log
 import com.invaderprogrammer.android.shg.di.App
-import com.invaderprogrammer.android.shg.mvp.contract.HouseContract
-import com.invaderprogrammer.android.shg.rest.HouseApi
-import com.invaderprogrammer.android.shg.rest.LightRoom
-import com.invaderprogrammer.android.shg.rest.TempHumPresCOWaterData
+import com.invaderprogrammer.android.shg.mvp.contract.GreenHouseContract
+import com.invaderprogrammer.android.shg.rest.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Named
-import javax.xml.datatype.DatatypeConstants.SECONDS
 
-
-
-class HousePresenter : HouseContract.Presenter() {
-
+class GreenHousePresenter : GreenHouseContract.Presenter() {
     @Inject
-    lateinit var houseApi: HouseApi
+    lateinit var houseApi: GreenHouseApi
 
     init {
         App.appComponent.inject(this)
@@ -55,6 +49,35 @@ class HousePresenter : HouseContract.Presenter() {
         }
     }
 
+    override fun getStatus() {
+        subscribe(houseApi.getStatus()
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext {
+                view.setStatus(
+                    StatusData(
+                        fan     = it.fan,
+                        door    = it.door,
+                        pump    = it.pump,
+                        red     = it.red,
+                        green   = it.green,
+                        blue    = it.blue,
+                        light   = it.light
+                    )
+                )
+            }
+            .doOnComplete {
+                makeDataTHP()
+            }
+            .subscribe({},
+                {
+                    view.showErrorMessage("ERROR. The server is not responding")
+                    it.printStackTrace()
+                }
+            )
+        )
+    }
+
     override fun refreshDataTHP() {
         view.refresh()
         makeDataTHP()
@@ -62,11 +85,11 @@ class HousePresenter : HouseContract.Presenter() {
 
     override fun postLight(lightRoom: LightRoom) {
         subscribe(houseApi.setLightRoom(
-                lightRoom.red,
-                lightRoom.green,
-                lightRoom.blue,
-                lightRoom.light
-            )
+            lightRoom.red,
+            lightRoom.green,
+            lightRoom.blue,
+            lightRoom.light
+        )
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
@@ -102,4 +125,17 @@ class HousePresenter : HouseContract.Presenter() {
         Executors.newSingleThreadScheduledExecutor()
             .scheduleAtFixedRate(Runnable { function() }, 2, timer, TimeUnit.SECONDS)
     }
+
+
+    override fun postPump(open: Int) {
+        subscribe(houseApi.setPump(open)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+
+            }, {
+                it.printStackTrace()
+            }))
+    }
+
 }

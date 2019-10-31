@@ -4,8 +4,7 @@ import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface HouseApi {
-
+interface GreenHouseApi{
     @GET("getdata")
     fun getTempHumPresCOWaterData() : Observable<TempHumPresCOWaterData>
 
@@ -25,6 +24,11 @@ interface HouseApi {
     @GET("fan")
     fun setFan(
         @Query("fan") fan: Int
+    ) : Observable<String>
+
+    @GET("pump")
+    fun setPump(
+        @Query("pump") pump: Int
     ) : Observable<String>
 
     @GET("status")

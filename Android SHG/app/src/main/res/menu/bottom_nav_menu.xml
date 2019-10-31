@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_house"
+        android:icon="@drawable/ic_house_nav"
+        android:title="@string/house_nav" />
+
+    <item
+        android:id="@+id/navigation_greenhouse"
+        android:icon="@drawable/ic_greenhouse_nav"
+        android:title="@string/greenhouse_nav" />
+
+
+</menu>

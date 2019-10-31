@@ -2,6 +2,7 @@ package com.invaderprogrammer.android.shg.di
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.invaderprogrammer.android.shg.rest.GreenHouseApi
 import com.invaderprogrammer.android.shg.rest.HouseApi
 import dagger.Module
 import dagger.Provides
@@ -36,17 +37,23 @@ class RestModule {
 
     @Provides
     @Singleton
-    @Named("SHG_API")
-    fun provideSHGRetrofit(gson: Gson, okHttpClient: OkHttpClient): Retrofit =
+    fun provideSHGRetrofitHouse(gson: Gson, okHttpClient: OkHttpClient): HouseApi =
         Retrofit.Builder()
             .baseUrl("http://192.168.10.177/")
             .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .client(okHttpClient)
             .build()
+            .create(HouseApi::class.java)
 
     @Provides
     @Singleton
-    fun provideSHGApiService(@Named("SHG_API") retrofit: Retrofit) : HouseApi =
-        retrofit.create(HouseApi::class.java)
+    fun provideSHGRetrofitGreenHouse(gson: Gson, okHttpClient: OkHttpClient): GreenHouseApi =
+        Retrofit.Builder()
+            .baseUrl("http://192.168.10.155/")
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .client(okHttpClient)
+            .build()
+            .create(GreenHouseApi::class.java)
 }

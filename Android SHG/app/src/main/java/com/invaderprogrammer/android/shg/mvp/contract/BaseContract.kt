@@ -7,6 +7,7 @@ class BaseContract {
     interface View
 
     abstract class Presenter<V : View> {
+        protected var isDetach = false
         private val subscriptions = CompositeDisposable()
         protected lateinit var view: V
 
@@ -20,10 +21,12 @@ class BaseContract {
 
         fun attach(view: V) {
             this.view = view
+            isDetach = false
         }
 
         fun detach() {
             unsubscribe()
+            isDetach = true
         }
     }
 }

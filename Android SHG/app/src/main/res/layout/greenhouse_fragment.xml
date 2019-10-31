@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/house_constraint"
+    android:id="@+id/greenhouse_constraint"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackgroundMain">
@@ -154,11 +154,13 @@
         android:id="@+id/fan_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
+        android:background="@color/colorButtonOff"
         android:text="@string/fan"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="@+id/layout_data"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/layout_data" />
 
     <Button
@@ -167,19 +169,31 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
+        android:background="@color/colorButtonOff"
         android:text="@string/door"
         android:textSize="14sp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintStart_toEndOf="@+id/fan_button"
         app:layout_constraintTop_toBottomOf="@+id/layout_data"/>
 
+    <Button
+        android:id="@+id/pump_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:background="@color/colorButtonOff"
+        android:text="@string/pump"
+        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/door_button"
+        app:layout_constraintTop_toTopOf="@+id/door_button" />
+
     <RelativeLayout
         android:id="@+id/relativeLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         app:layout_constraintBottom_toBottomOf="@+id/door_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/door_button"
         app:layout_constraintTop_toBottomOf="@+id/layout_data">
 
         <TextView
@@ -187,8 +201,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:textSize="24sp"
             android:paddingBottom="8dp"
+            android:textSize="24sp"
             tools:text="27" />
 
         <TextView
@@ -197,7 +211,7 @@
             android:layout_below="@id/water_value"
             android:layout_marginTop="8dp"
             android:gravity="center"
-            android:text="@string/water"
+            android:text="@string/hum_soil"
             android:textSize="15sp" />
 
     </RelativeLayout>
@@ -270,7 +284,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/brightness"
-            android:textSize="16sp"/>
+            android:textSize="16sp" />
 
         <LinearLayout
             android:layout_width="match_parent"
