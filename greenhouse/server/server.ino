@@ -24,6 +24,7 @@
 #define PUMP                9           // Код управления помпой
 
 #define PINCONNECTION_LED   A0          // Код диода состояния подключения к сети
+#define PINDCONNECTION_LED  D10         // Код диода состояния подключения к сети
 #define PINWATER            A3          // Пин для получения данных воды
 #define PINFAN              D3          // Пин для работы вентилятора
 #define PINSERVO            D4          // Пин для сервомашинка (двери)
@@ -71,6 +72,7 @@ WebServer server(80);
 void connectLedOnOff() {
   connectLed = !connectLed;
   digitalWrite(PINCONNECTION_LED, connectLed);
+  digitalWrite(PINDCONNECTION_LED, connectLed);
 }
 
 //
@@ -283,7 +285,7 @@ void fanOnOff() {
   Serial.println(" fan");
   withCode(FAN);
   String out = "{";
-  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + fan      /*+ "\""*/ + ",";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + fan;
   out += "}";
   server.send(200, "text/html", out);
 }
@@ -303,7 +305,7 @@ void openDoor() {
   Serial.println(" door");
   withCode(DOOR);
   String out = "{";
-  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + doorInt      /*+ "\""*/ + ",";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + doorInt;
   out += "}";
   server.send(200, "text/html", out);
 }
@@ -326,7 +328,7 @@ void lightRoom() {
   Serial.println(" light");
   withCode(LEDRING);
   String out = "{";
-  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + light      /*+ "\""*/ + ",";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + light;
   out += "}";
   server.send(200, "text/html", out);
 }
@@ -347,7 +349,7 @@ void pumpOnOff()
   Serial.println(" pump");
   withCode(PUMP);
   String out = "{";
-  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + pump      /*+ "\""*/ + ",";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + pump;
   out += "}";
   server.send(200, "text/html", out);
 }
@@ -384,6 +386,7 @@ void equipmentStatus()
 
 void setup() {  
   pinMode(PINCONNECTION_LED, OUTPUT);
+  pinMode(PINDCONNECTION_LED, OUTPUT);
   connectLedOnOff();
   
   Serial.begin(115200);
@@ -457,11 +460,20 @@ void setup() {
   }
   loopWater();
   getTempHumPresBME();
+  setLight(0, 0, 0, 0);
+
+  connectLedOnOff();
+  delay(500);
+  connectLedOnOff();
+  delay(500);
+  connectLedOnOff();
+  delay(500);
 
   connectLed = 0;
   connectLedOnOff();
   
   flagConnect = true;
+  setLight(0, 0, 0, 0);
 }
 
 void loop() {
