@@ -1,309 +1,331 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/greenhouse_constraint"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/colorBackgroundMain">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/layout_data"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/selector_data"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/temperature_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textSize="24sp"
-                    tools:text="27°C" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/temperature_value"
-                    android:layout_marginTop="8dp"
-                    android:textSize="15sp"
-                    android:text="@string/temperature" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/colorLineData" />
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/pressure_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textSize="24sp"
-                    tools:text="27 мм" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/pressure_value"
-                    android:layout_marginTop="8dp"
-                    android:textSize="15sp"
-                    android:text="@string/pressure" />
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-        <View
-            android:layout_width="2dp"
-            android:layout_height="match_parent"
-            android:background="@color/colorLineData" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/humidity_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textSize="24sp"
-                    tools:text="27%" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/humidity_value"
-                    android:layout_marginTop="8dp"
-                    android:textSize="15sp"
-                    android:text="@string/humidity" />
-
-            </RelativeLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@color/colorLineData" />
-
-            <RelativeLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:padding="16dp">
-
-                <TextView
-                    android:id="@+id/co2_value"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:textSize="24sp"
-                    tools:text="27" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/co2_value"
-                    android:layout_marginTop="8dp"
-                    android:textSize="15sp"
-                    android:text="@string/co2" />
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/fan_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/colorButtonOff"
-        android:text="@string/fan"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_data" />
-
-    <Button
-        android:id="@+id/door_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:background="@color/colorButtonOff"
-        android:text="@string/door"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toEndOf="@+id/fan_button"
-        app:layout_constraintTop_toBottomOf="@+id/layout_data"/>
-
-    <Button
-        android:id="@+id/pump_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:background="@color/colorButtonOff"
-        android:text="@string/pump"
-        android:textSize="14sp"
-        app:layout_constraintStart_toEndOf="@+id/door_button"
-        app:layout_constraintTop_toTopOf="@+id/door_button" />
-
-    <RelativeLayout
-        android:id="@+id/relativeLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        app:layout_constraintBottom_toBottomOf="@+id/door_button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_data">
-
-        <TextView
-            android:id="@+id/water_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:paddingBottom="8dp"
-            android:textSize="24sp"
-            tools:text="27" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/water_value"
-            android:layout_marginTop="8dp"
-            android:gravity="center"
-            android:text="@string/hum_soil"
-            android:textSize="15sp" />
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/greenhouse_constraint"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="32dp"
-        android:background="@drawable/selector_data"
-        android:orientation="vertical"
-        android:padding="8dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/relativeLayout">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/light_room"
-            android:textSize="16sp" />
+        android:background="@color/colorBackgroundMain">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/layout_data"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:layout_marginEnd="32dp"
+            android:background="@drawable/selector_data"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|start"
                 android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingTop="6dp">
+                android:orientation="vertical">
 
-                <SeekBar
-                    android:id="@+id/red_value"
-                    android:layout_width="match_parent"
+                <RelativeLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="3dp"
-                    android:max="255" />
+                    android:layout_gravity="center"
+                    android:padding="16dp">
 
-                <SeekBar
-                    android:id="@+id/green_value"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="3dp"
-                    android:max="255" />
+                    <TextView
+                        android:id="@+id/temperature_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:textSize="24sp"
+                        tools:text="27°C" />
 
-                <SeekBar
-                    android:id="@+id/blue_value"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/temperature_value"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/temperature"
+                        android:textSize="15sp" />
+
+                </RelativeLayout>
+
+                <View
                     android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/colorLineData" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:max="255" />
+                    android:layout_gravity="center"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/pressure_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:textSize="24sp"
+                        tools:text="27 мм" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/pressure_value"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/pressure"
+                        android:textSize="15sp" />
+
+                </RelativeLayout>
 
             </LinearLayout>
 
             <View
-                android:id="@+id/color_light"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                android:layout_gravity="end|center_vertical"
-                android:background="@drawable/selector_color_light" />
+                android:layout_width="2dp"
+                android:layout_height="match_parent"
+                android:background="@color/colorLineData" />
 
-        </LinearLayout>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/brightness"
-            android:textSize="16sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <SeekBar
-                android:id="@+id/brightness"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:max="100" />
+                android:orientation="vertical">
 
-            <View
-                android:layout_width="70dp"
-                android:layout_height="1dp" />
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/humidity_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:textSize="24sp"
+                        tools:text="27%" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/humidity_value"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/humidity"
+                        android:textSize="15sp" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/colorLineData" />
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/co2_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:textSize="24sp"
+                        tools:text="27" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/co2_value"
+                        android:layout_marginTop="8dp"
+                        android:text="@string/co2"
+                        android:textSize="15sp" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
 
         </LinearLayout>
 
-    </LinearLayout>
+        <Button
+            android:id="@+id/fan_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorButtonOff"
+            android:text="@string/fan"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/layout_data"
+            app:layout_constraintTop_toBottomOf="@+id/layout_data" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Button
+            android:id="@+id/door_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorButtonOff"
+            android:text="@string/door"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/fan_button"
+            app:layout_constraintTop_toBottomOf="@+id/fan_button" />
+
+        <Button
+            android:id="@+id/pump_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@color/colorButtonOff"
+            android:text="@string/pump"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/door_button"
+            app:layout_constraintTop_toBottomOf="@+id/door_button" />
+
+        <RelativeLayout
+            android:id="@+id/relativeLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+            app:layout_constraintEnd_toEndOf="@+id/layout_data"
+            app:layout_constraintTop_toBottomOf="@+id/layout_data">
+
+            <TextView
+                android:id="@+id/water_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:paddingBottom="8dp"
+                android:textSize="24sp"
+                tools:text="27" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/water_value"
+                android:layout_marginTop="8dp"
+                android:gravity="center"
+                android:text="@string/hum_soil"
+                android:textSize="15sp" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/selector_data"
+            android:orientation="vertical"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pump_button">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/light_room"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!--            <LinearLayout-->
+                <!--                android:layout_width="0dp"-->
+                <!--                android:layout_height="wrap_content"-->
+                <!--                android:layout_gravity="center_vertical|start"-->
+                <!--                android:layout_weight="1"-->
+                <!--                android:orientation="vertical"-->
+                <!--                android:paddingTop="6dp">-->
+
+                <!--                <SeekBar-->
+                <!--                    android:id="@+id/red_value"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginBottom="3dp"-->
+                <!--                    android:max="255" />-->
+
+                <!--                <SeekBar-->
+                <!--                    android:id="@+id/green_value"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginBottom="3dp"-->
+                <!--                    android:max="255" />-->
+
+                <!--                <SeekBar-->
+                <!--                    android:id="@+id/blue_value"-->
+                <!--                    android:layout_width="match_parent"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:max="255" />-->
+
+                <!--            </LinearLayout>-->
+
+                <!--            <View-->
+                <!--                android:id="@+id/color_light"-->
+                <!--                android:layout_width="70dp"-->
+                <!--                android:layout_height="70dp"-->
+                <!--                android:layout_gravity="end|center_vertical"-->
+                <!--                android:background="@drawable/selector_color_light" />-->
+
+
+                <com.larswerkman.holocolorpicker.ColorPicker
+                    android:id="@+id/color_picker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+                <com.larswerkman.holocolorpicker.SVBar
+                    android:id="@+id/svbar_color"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center" />
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/brightness"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <SeekBar
+                    android:id="@+id/brightness"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:max="150" />
+
+                <TextView
+                    android:id="@+id/brightness_text"
+                    android:layout_width="70dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/brightness_text"
+                    android:textSize="16sp"
+                    tools:text="0" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

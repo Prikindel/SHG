@@ -67,6 +67,12 @@ IPAddress subnet(255, 255, 255, 0);                  //mask
 WebServer server(80);
 
 
+
+void connectLedOnOff() {
+  connectLed = !connectLed;
+  digitalWrite(PINCONNECTION_LED, connectLed);
+}
+
 //
 //  Connection to WiFi
 //
@@ -87,6 +93,7 @@ void connectToWiFi(bool ipFlag)
  
   
   while (WiFi.status() != WL_CONNECTED) {
+    connectLedOnOff();
     delay(500);
     Serial.print(".");
   }
@@ -275,8 +282,9 @@ void fanOnOff() {
   Serial.print(fan == 0 ? "OFF" : "ON");
   Serial.println(" fan");
   withCode(FAN);
-  String out = "";
-  out = "fan = " + (String)fan;
+  String out = "{";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + fan      /*+ "\""*/ + ",";
+  out += "}";
   server.send(200, "text/html", out);
 }
 
@@ -294,8 +302,9 @@ void openDoor() {
   Serial.print(doorInt == 0 ? "CLOSE" : ("OPEN on " + (String)doorInt));
   Serial.println(" door");
   withCode(DOOR);
-  String out = "";
-  out = "door = " + (String)doorInt;
+  String out = "{";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + doorInt      /*+ "\""*/ + ",";
+  out += "}";
   server.send(200, "text/html", out);
 }
 
@@ -316,8 +325,9 @@ void lightRoom() {
   Serial.print(light == 0 ? "OFF" : "ON");
   Serial.println(" light");
   withCode(LEDRING);
-  String out = "";
-  out = "light = " + (String)light + " RGB(" + red + ";" + green + ";" + blue + ")";
+  String out = "{";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + light      /*+ "\""*/ + ",";
+  out += "}";
   server.send(200, "text/html", out);
 }
 
@@ -336,8 +346,9 @@ void pumpOnOff()
   Serial.print(pump == 0 ? "OFF" : "ON");
   Serial.println(" pump");
   withCode(PUMP);
-  String out = "";
-  out = "pump = " + (String)pump;
+  String out = "{";
+  out += "\"" + (String)"out" + "\":" /*+ "\""*/ + pump      /*+ "\""*/ + ",";
+  out += "}";
   server.send(200, "text/html", out);
 }
 
@@ -371,24 +382,19 @@ void equipmentStatus()
   server.send(200, "text/html", out);
 }
 
-void connectLedOnOff(int value) {
-  digitalWrite(PINCONNECTION_LED, value);
-  connectLed = value;
-}
-
 void setup() {  
   pinMode(PINCONNECTION_LED, OUTPUT);
-  connectLedOnOff(1);
+  connectLedOnOff();
   
   Serial.begin(115200);
   delay(100);
 
-  connectLedOnOff(0);
+  connectLedOnOff();
 
   Wire.begin();
   connectToWiFi(false);
   
-  connectLedOnOff(1);
+  connectLedOnOff();
   
   IPAddress localIp = WiFi.localIP();
   ip[0] = localIp[0];
@@ -404,7 +410,7 @@ void setup() {
   connectToWiFi(true);
   
  
-  connectLedOnOff(0);
+  connectLedOnOff();
   
   server.on("/",            handleRoot);
   server.on("/status",      equipmentStatus);
@@ -430,7 +436,7 @@ void setup() {
   Serial.println("/");
   
   
-  connectLedOnOff(1);
+  connectLedOnOff();
 
   // инициализация всех пинов
   setupFan(PINFAN);                           // installing the fan
@@ -443,7 +449,7 @@ void setup() {
 
                         
   
-  connectLedOnOff(0);
+  connectLedOnOff();
 
   // загрузка данных
   if(!checkBME()) { 
@@ -452,8 +458,8 @@ void setup() {
   loopWater();
   getTempHumPresBME();
 
-  
-  connectLedOnOff(1);
+  connectLed = 0;
+  connectLedOnOff();
   
   flagConnect = true;
 }
@@ -468,7 +474,6 @@ void loop() {
   }
   if (millis() - timerConnectLed >= 100 && !flagConnect) {            // Timer
     timerConnectLed = millis();
-    connectLed = !connectLed;
-    connectLedOnOff(connectLed);
+    connectLedOnOff();
   }
 }

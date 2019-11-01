@@ -16,10 +16,20 @@ import com.invaderprogrammer.android.shg.mvp.presenter.GreenHousePresenter
 import com.invaderprogrammer.android.shg.rest.LightRoom
 import com.invaderprogrammer.android.shg.rest.StatusData
 import com.invaderprogrammer.android.shg.rest.TempHumPresCOWaterData
+import com.larswerkman.holocolorpicker.ColorPicker
 import kotlinx.android.synthetic.main.greenhouse_fragment.*
+import kotlinx.android.synthetic.main.greenhouse_fragment.brightness
+import kotlinx.android.synthetic.main.greenhouse_fragment.co2_value
+import kotlinx.android.synthetic.main.greenhouse_fragment.door_button
+import kotlinx.android.synthetic.main.greenhouse_fragment.fan_button
+import kotlinx.android.synthetic.main.greenhouse_fragment.humidity_value
+import kotlinx.android.synthetic.main.greenhouse_fragment.pressure_value
+import kotlinx.android.synthetic.main.greenhouse_fragment.temperature_value
+import kotlinx.android.synthetic.main.greenhouse_fragment.water_value
+import kotlinx.android.synthetic.main.house_fragment.*
 import javax.inject.Inject
 
-class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseContract.View {
+class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseContract.View, ColorPicker.OnColorChangedListener {
 
     @Inject
     lateinit var presenter: GreenHousePresenter
@@ -29,19 +39,25 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
     private var doorState = 0
     private var pumpState = 0
 
-    private val sendInterval = 300L
+    private val sendInterval = 50L
     private var nextSend: Long = 0L
 
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         App.appComponent.inject(this)
+
+
         presenter.attach(this)
         presenter.getStatus()
 
-        red_value.setOnSeekBarChangeListener(seekListener())
-        green_value.setOnSeekBarChangeListener(seekListener())
-        blue_value.setOnSeekBarChangeListener(seekListener())
+
+        color_picker.addSVBar(svbar_color)
+        color_picker.onColorChangedListener = this
+        color_picker.setOnColorSelectedListener {
+            presenter.postLight(lightRoom)
+        }
+
         brightness.setOnSeekBarChangeListener(seekListener())
 
         fan_button.setOnClickListener(clickFan())
@@ -54,10 +70,10 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
             fun whenSeek(seekBar: SeekBar?, value: Int) {
                 lightRoom.apply {
                     when (seekBar) {
-                        red_value   -> red   = value
-                        green_value -> green = value
-                        blue_value  -> blue  = value
-                        brightness  -> light = value
+                        brightness  -> {
+                                            light = value
+                                            brightness_text.text = value.toString()
+                                        }
                     }
                 }
             }
@@ -68,7 +84,6 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
                     presenter.postLight(lightRoom)
                     nextSend = SystemClock.uptimeMillis() + sendInterval
                 }
-                setLightView()
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -77,7 +92,6 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 presenter.postLight(lightRoom)
-                setLightView()
             }
 
         }
@@ -121,10 +135,25 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
         }
     }
 
-    fun setLightView() {
+    private fun setLightView() {
         lightRoom.apply {
-            color_light.setBackgroundColor(Color.rgb(red, green, blue))
+            color_picker.oldCenterColor = Color.rgb(red, green, blue)
+            color_picker.color = Color.rgb(red, green, blue)
+            svbar_color.color = Color.rgb(red, green, blue)
         }
+    }
+
+    override fun onColorChanged(color: Int) {
+        lightRoom.apply {
+            red = Color.red(color)
+            green = Color.green(color)
+            blue = Color.blue(color)
+        }
+        if (nextSend < SystemClock.uptimeMillis()) {
+            presenter.postLight(lightRoom)
+            nextSend = SystemClock.uptimeMillis() + sendInterval
+        }
+        color_picker.oldCenterColor = color
     }
 
     @SuppressLint("SetTextI18n")
@@ -149,10 +178,10 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
             lightRoom.light = light
         }
         setLightView()
-        red_value.progress = lightRoom.red
-        green_value.progress = lightRoom.green
-        blue_value.progress = lightRoom.blue
-        brightness.progress = lightRoom.light
+        lightRoom.apply {
+            brightness.progress = light
+            brightness_text.text = light.toString()
+        }
         setColorButton()
     }
 

@@ -16,5 +16,6 @@
     <string name="pump">Полив</string>
     <string name="house_nav">Дом</string>
     <string name="greenhouse_nav">Теплица</string>
+    <string name="brightness_text">0</string>
 
 </resources>
