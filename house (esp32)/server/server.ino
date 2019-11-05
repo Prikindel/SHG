@@ -18,7 +18,8 @@
 #define PRESSURE            3         // Код давления
 #define CO2                 4         // Код СО2
 #define WATER               5         // Код воды
-#define LEDRING             6         // Код диодного кольца
+#define LEDRINGUP           10         // Код диодного кольца на втором этаже
+#define LEDRINGDOWN         6         // Код диодного кольца на первом этаже
 #define DOOR                7         // Код управления дверью
 #define FAN                 8         // Код управления вентилятором
 #define CODEUNO             9         // Код платы
@@ -45,6 +46,7 @@ uint32_t timerConnectLed;             // timer LED connection
 char outChar[20] = {};                // returned value
 int led         = 0;                  // value LED REST API
 int connectLed  = 0;                  // value LED connection WiFi
+int flooor      = 0;                  // value of floor
 int light       = 0;                  // value brightness LED RING
 int red         = 0;                  // value red LED RING
 int green       = 0;                  // value green LED RING
@@ -160,9 +162,11 @@ float getWaterThis() {
 /*
  *  Control the light in the room
  */
-String setLight(int red, int green, int blue, int br) {
-  setLightInTheRoomDown(red, green, blue, br);
-  setLightInTheRoomUp(red, green, blue, br);
+String setLight(int red, int green, int blue, int br, int flooor) {
+  if(flooor == 1)
+    setLightInTheRoomDown(red, green, blue, br);
+  if(flooor == 2)
+    setLightInTheRoomUp(red, green, blue, br);
   return "true";
 }
 
@@ -188,7 +192,6 @@ String setFan(int value) {
  *  and return the result
  */
 void withCode(int code) {
-  String out = "";
   switch (code) {
     case TEMPERATURA: {
       setParameter(0, (int)getTemperatureThis());
@@ -210,8 +213,12 @@ void withCode(int code) {
       setParameter(4, (int)getWaterThis());
       break;
     }
-    case LEDRING: {
-      setLight(red, green, blue, light);
+    case LEDRINGDOWN: {
+      setLight(red, green, blue, light, 1);
+      break;
+    }
+    case LEDRINGUP: {
+      setLight(red, green, blue, light, 2);
       break;
     }
     case DOOR: {
@@ -273,18 +280,16 @@ void lightRoom() {
     green = server.arg("green").toInt();
     blue  = server.arg("blue").toInt();
     light = server.arg("light").toInt();
+    flooor = server.arg("floor").toInt();
   }
   // Управляем светом здесь
   Serial.print(light == 0 ? "OFF" : "ON");
   Serial.println(" light");
-  String feedback = getDataCode(LEDRING);
-  String out = "";
-  Serial.println(feedback);
-  if (feedback == "false" || feedback == "") {
-    out = "ERROR";
-  } else {
-    out = "light = " + (String)light + " RGB(" + red + ";" + green + ";" + blue + ")";
-  }
+  if(flooor == 1)
+    withCode(LEDRINGDOWN);
+  if(flooor == 2)
+    withCode(LEDRINGUP);
+  String out = "light = " + (String)light + " RGB(" + red + ";" + green + ";" + blue + ")" + " floor: " + (String)flooor;
   server.send(200, "text/html", out);
 }
 
@@ -301,14 +306,8 @@ void openDoor() {
   // Управляем дверью здесь
   Serial.print(doorInt == 0 ? "CLOSE" : ("OPEN on " + (String)doorInt));
   Serial.println(" door");
-  String feedback = getDataCode(DOOR);
-  String out = "";
-  Serial.println(feedback);
-  if (feedback == "false" || feedback == "") {
-    out = "ERROR";
-  } else {
-    out = "door = " + (String)doorInt;
-  }
+  withCode(DOOR);
+  String out = "door = " + (String)doorInt;
   server.send(200, "text/html", out);
 }
 
@@ -325,14 +324,8 @@ void fanOnOff() {
   // Управляем вентилятором здесь
   Serial.print(fan == 0 ? "OFF" : "ON");
   Serial.println(" fan");
-  String feedback = getDataCode(FAN);
-  String out = "";
-  Serial.println(feedback);
-  if (feedback == "false" || feedback == "") {
-    out = "ERROR";
-  } else {
-    out = "fan = " + (String)fan;
-  }
+  withCode(FAN);
+  String out = "fan = " + (String)fan;
   server.send(200, "text/html", out);
 }
 
@@ -345,11 +338,20 @@ void writeCode(int code) {
   Wire.beginTransmission(CODEUNO);
   Wire.write(code);
   switch(code) {
-    case LEDRING: {
+    case LEDRINGUP: {
       Wire.write(red);
       Wire.write(green);
       Wire.write(blue);
       Wire.write(light);
+      Wire.write(flooor);
+      break;
+    }
+    case LEDRINGDOWN: {
+      Wire.write(red);
+      Wire.write(green);
+      Wire.write(blue);
+      Wire.write(light);
+      Wire.write(flooor);
       break;
     }
     case DOOR: {
@@ -366,29 +368,6 @@ void writeCode(int code) {
   Wire.endTransmission();
 }
 
-String getDataCode(int code) {
-  writeCode(code);
-  Serial.println();
-  Serial.print("getData code=");
-  Serial.println(code);
-  Wire.beginTransmission(CODEUNO);
-  Wire.requestFrom(CODEUNO, 20);
-  int i = 0;
-  while(Wire.available()) {
-     outChar[i] = Wire.read();
-     i++;
-  }
-  Wire.endTransmission();
-  Serial.print("outChar = ");
-  Serial.println(outChar);
-  String out = "";
-  if (i) {
-    out = (String)outChar;
-  }
-  return out;
-}
-
-char t[10] = {};
 
 // fun setup
 void setup() {
@@ -431,7 +410,8 @@ void setup() {
    
   server.on("/",            handleRoot);
   server.on("/getdata",     outData);
-  server.on("/light-room",  lightRoom);
+  server.on("/light-room-up",  lightRoom);
+  server.on("/light-room-down",  lightRoom);
   server.on("/open-door",   openDoor);
   server.on("/fan",         fanOnOff);
 
@@ -462,15 +442,22 @@ void setup() {
   setupLightInTheRoomUp(PINLIGHTROOMUP,           // installing the light in the room up
                         countLedsOfLightInTheRoomUp);
 
+  Serial.println("init suc");
   connectLedOnOff();
 
   // загрузка данных
   if(!checkBME()) { 
     Serial.println("BME280 ERROR!");
   }
+  Serial.println("no bme err");
   loopWater();
+  Serial.println("loop water");
   getTempHumPresBME();
-  setLight(0, 0, 0, 0);
+  Serial.println("thpBME");
+  setLight(0, 0, 0, 0, 1);
+  Serial.println("fl1 light set");
+  setLight(0, 0, 0, 0, 2);
+  Serial.println("fl2 light set");
 
   connectLedOnOff();
   delay(500);
@@ -483,7 +470,8 @@ void setup() {
   connectLedOnOff();
   
   flagConnect = true;
-  setLight(0, 0, 0, 0);
+  setLight(0, 0, 0, 0, 1);
+  setLight(0, 0, 0, 0, 2);
 }
 
 // fun loop
