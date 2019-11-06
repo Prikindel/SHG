@@ -73,6 +73,9 @@ class GreenHousePresenter : GreenHouseContract.Presenter() {
                 {
                     view.showErrorMessage("ERROR. The server is not responding")
                     it.printStackTrace()
+                    timerFunctionLoop(2000) {
+                        getStatus()
+                    }
                 }
             )
         )

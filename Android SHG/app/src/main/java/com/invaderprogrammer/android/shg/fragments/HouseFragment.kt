@@ -14,10 +14,11 @@ import com.invaderprogrammer.android.shg.mvp.contract.HouseContract
 import com.invaderprogrammer.android.shg.mvp.presenter.HousePresenter
 import com.invaderprogrammer.android.shg.rest.LightRoom
 import com.invaderprogrammer.android.shg.rest.TempHumPresCOWaterData
+import com.larswerkman.holocolorpicker.ColorPicker
 import kotlinx.android.synthetic.main.house_fragment.*
 import javax.inject.Inject
 
-class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View {
+class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View, ColorPicker.OnColorChangedListener {
 
     @Inject
     lateinit var presenter: HousePresenter
@@ -26,7 +27,7 @@ class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View {
     private var fanState = 0
     private var doorState = 0
 
-    private val sendInterval = 300L
+    private val sendInterval = 150L
     private var nextSend: Long = 0L
 
 
@@ -36,9 +37,12 @@ class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View {
         presenter.attach(this)
         presenter.makeDataTHP()
 
-        red_value.setOnSeekBarChangeListener(seekListener())
-        green_value.setOnSeekBarChangeListener(seekListener())
-        blue_value.setOnSeekBarChangeListener(seekListener())
+        color_picker.addSVBar(svbar_color)
+        color_picker.onColorChangedListener = this
+        color_picker.setOnColorSelectedListener {
+            presenter.postLight(lightRoom)
+        }
+
         brightness.setOnSeekBarChangeListener(seekListener())
 
         fan_button.setOnClickListener(clickFan())
@@ -50,10 +54,10 @@ class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View {
             fun whenSeek(seekBar: SeekBar?, value: Int) {
                 lightRoom.apply {
                     when (seekBar) {
-                        red_value   -> red   = value
-                        green_value -> green = value
-                        blue_value  -> blue  = value
-                        brightness  -> light = value
+                        brightness  -> {
+                            light = value
+                            brightness_text.text = value.toString()
+                        }
                     }
                 }
             }
@@ -73,7 +77,6 @@ class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View {
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 presenter.postLight(lightRoom)
-                setLightView()
             }
 
         }
@@ -82,26 +85,56 @@ class HouseFragment : Fragment(R.layout.house_fragment), HouseContract.View {
         View.OnClickListener {
             fanState = if (fanState == 0) 1 else 0
             presenter.postFan(fanState)
+            setColorButton()
         }
 
     private fun clickDoor() =
         View.OnClickListener {
             doorState = if (doorState == 0) 90 else 0
             presenter.postDoor(doorState)
+            setColorButton()
         }
+
+    private fun setColorButton() {
+        if (fanState == 1) {
+            fan_button.setBackgroundColor(resources.getColor(R.color.colorButtonOn))
+        } else {
+            fan_button.setBackgroundColor(resources.getColor(R.color.colorButtonOff))
+        }
+        if (doorState != 0) {
+            door_button.setBackgroundColor(resources.getColor(R.color.colorButtonOn))
+        } else {
+            door_button.setBackgroundColor(resources.getColor(R.color.colorButtonOff))
+        }
+    }
 
     fun setLightView() {
         lightRoom.apply {
-            color_light.setBackgroundColor(Color.rgb(red, green, blue))
+            color_picker.oldCenterColor = Color.rgb(red, green, blue)
+            color_picker.color = Color.rgb(red, green, blue)
+            svbar_color.color = Color.rgb(red, green, blue)
         }
+    }
+
+    override fun onColorChanged(color: Int) {
+        lightRoom.apply {
+            red = Color.red(svbar_color.color)
+            green = Color.green(svbar_color.color)
+            blue = Color.blue(svbar_color.color)
+        }
+        if (nextSend < SystemClock.uptimeMillis()) {
+            presenter.postLight(lightRoom)
+            nextSend = SystemClock.uptimeMillis() + sendInterval
+        }
+        color_picker.oldCenterColor = color
     }
 
     @SuppressLint("SetTextI18n")
     override fun updateDataTHP(data: TempHumPresCOWaterData) {
         data.apply {
-            temperature_value.text = "${temperature}${R.string.temp_unit}"
-            humidity_value.text = "$humidity${R.string.hum_unit}"
-            pressure_value.text = "$pressure ${R.string.pres_unit}"
+            temperature_value.text = "${temperature}${resources.getString(R.string.temp_unit)}"
+            humidity_value.text = "$humidity${resources.getString(R.string.hum_unit)}"
+            pressure_value.text = "$pressure ${resources.getString(R.string.pres_unit)}"
             co2_value.text = co2.toString()
             water_value.text = water.toString()
         }

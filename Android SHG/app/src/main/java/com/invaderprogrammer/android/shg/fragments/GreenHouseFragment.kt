@@ -26,7 +26,6 @@ import kotlinx.android.synthetic.main.greenhouse_fragment.humidity_value
 import kotlinx.android.synthetic.main.greenhouse_fragment.pressure_value
 import kotlinx.android.synthetic.main.greenhouse_fragment.temperature_value
 import kotlinx.android.synthetic.main.greenhouse_fragment.water_value
-import kotlinx.android.synthetic.main.house_fragment.*
 import javax.inject.Inject
 
 class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseContract.View, ColorPicker.OnColorChangedListener {
@@ -39,7 +38,7 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
     private var doorState = 0
     private var pumpState = 0
 
-    private val sendInterval = 50L
+    private val sendInterval = 150L
     private var nextSend: Long = 0L
 
 
@@ -145,9 +144,9 @@ class GreenHouseFragment : Fragment(R.layout.greenhouse_fragment), GreenHouseCon
 
     override fun onColorChanged(color: Int) {
         lightRoom.apply {
-            red = Color.red(color)
-            green = Color.green(color)
-            blue = Color.blue(color)
+            red = Color.red(svbar_color.color)
+            green = Color.green(svbar_color.color)
+            blue = Color.blue(svbar_color.color)
         }
         if (nextSend < SystemClock.uptimeMillis()) {
             presenter.postLight(lightRoom)
